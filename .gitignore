@@ -1,0 +1,24 @@
+# Haskell and Cabal build artifacts
+dist-newstyle/
+dist/
+cabal-dev/
+*.o
+*.hi
+*.hie
+*.chi
+*.chs.h
+*.dyn_o
+*.dyn_hi
+.stack-work/
+cabalsandbox/
+cabal.sandbox.config
+.ghc.environment.*
+
+# macOS specific
+.DS_Store
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*~
