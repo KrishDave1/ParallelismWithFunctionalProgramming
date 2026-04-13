@@ -1,0 +1,119 @@
+cabal-version:      3.0
+name:               haskell-parallelism
+version:            0.1.0.0
+synopsis:           Exploring parallelism through functional programming constructs in Haskell
+description:
+    This project demonstrates how functional programming concepts — purity,
+    higher-order functions, lazy evaluation, persistent data structures,
+    and explicit parallelism constructs — can be leveraged to build parallel
+    algorithms that are safe, composable, and performant.
+    .
+    Four computational problems are implemented:
+    .
+    1. Parallel Merge Sort (Eval monad + Strategies)
+    2. Parallel Matrix Multiplication (Data Parallelism with Massiv)
+    3. Parallel MapReduce Word Count (Par monad)
+    4. Monte Carlo Pi Estimation (Async + STM)
+    .
+    Each problem is benchmarked against equivalent C++ and Python implementations.
+
+license:            MIT
+author:             Krish Dave
+build-type:         Simple
+
+-- ============================================================================
+-- Common settings shared across all build targets
+-- ============================================================================
+common shared-settings
+    default-language: Haskell2010
+    ghc-options:
+        -Wall
+        -O2
+        -threaded
+        -rtsopts
+        "-with-rtsopts=-N"
+    build-depends:
+        base >= 4.14 && < 5
+
+-- ============================================================================
+-- Library: Core implementations of all parallel algorithms
+-- ============================================================================
+library
+    import:           shared-settings
+    hs-source-dirs:   src
+    exposed-modules:
+        -- Problem 1: Parallel Merge Sort
+        Sorting.SequentialMergeSort
+        Sorting.ParallelMergeSort
+        -- Problem 2: Parallel Matrix Multiplication
+        Matrix.SequentialMatMul
+        Matrix.ParallelMatMul
+        -- Problem 3: Parallel MapReduce Word Count
+        MapReduce.SequentialWordCount
+        MapReduce.ParallelWordCount
+        -- Problem 4: Monte Carlo Pi Estimation
+        MonteCarlo.SequentialPi
+        MonteCarlo.ParallelPi
+        -- Benchmarking utilities
+        Bench.Utils
+    build-depends:
+        parallel >= 3.2,
+        deepseq >= 1.4,
+        random >= 1.2,
+        vector >= 0.13,
+        async >= 2.2,
+        stm >= 2.5,
+        monad-par >= 0.3,
+        time >= 1.9,
+        directory >= 1.3,
+        bytestring >= 0.11,
+        containers >= 0.6,
+        text >= 2.0,
+        splitmix >= 0.1
+
+-- ============================================================================
+-- Executable: Main benchmark runner
+-- ============================================================================
+executable haskell-parallelism
+    import:           shared-settings
+    main-is:          Main.hs
+    hs-source-dirs:   app
+    build-depends:
+        haskell-parallelism,
+        deepseq >= 1.4,
+        time >= 1.9
+
+-- ============================================================================
+-- Individual benchmark executables (for focused testing)
+-- ============================================================================
+executable bench-mergesort
+    import:           shared-settings
+    main-is:          BenchMergeSort.hs
+    hs-source-dirs:   app
+    build-depends:
+        haskell-parallelism,
+        deepseq >= 1.4
+
+executable bench-matmul
+    import:           shared-settings
+    main-is:          BenchMatMul.hs
+    hs-source-dirs:   app
+    build-depends:
+        haskell-parallelism,
+        deepseq >= 1.4
+
+executable bench-wordcount
+    import:           shared-settings
+    main-is:          BenchWordCount.hs
+    hs-source-dirs:   app
+    build-depends:
+        haskell-parallelism,
+        deepseq >= 1.4
+
+executable bench-montecarlo
+    import:           shared-settings
+    main-is:          BenchMonteCarlo.hs
+    hs-source-dirs:   app
+    build-depends:
+        haskell-parallelism
+
