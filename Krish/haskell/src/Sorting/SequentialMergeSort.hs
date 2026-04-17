@@ -45,7 +45,7 @@ module Sorting.SequentialMergeSort
     , merge
     ) where
 
-import Control.DeepSeq (NFData(..))
+
 
 {-|
   Sequential merge sort on lists.

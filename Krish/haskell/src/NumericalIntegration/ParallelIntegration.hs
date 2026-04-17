@@ -89,8 +89,7 @@ module NumericalIntegration.ParallelIntegration
 
 import NumericalIntegration.SequentialIntegration (integrateStrict)
 import Control.Parallel.Strategies
-    ( rpar, rseq, rdeepseq, parList, using, runEval )
-import Control.DeepSeq (force)
+    ( rdeepseq, parList, using )
 
 -- ============================================================================
 -- Approach 1: Domain Decomposition with Eval Monad

@@ -13,7 +13,6 @@ import System.Random (mkStdGen, uniformR)
 generateClusteredData :: Int -> Int -> Int -> [Point]
 generateClusteredData seed k totalPoints =
     let pointsPerCluster = totalPoints `div` k
-        gen0 = mkStdGen seed
         -- Generate K cluster centers evenly spaced
         centers = [(100 * cos (2 * pi * fromIntegral i / fromIntegral k),
                     100 * sin (2 * pi * fromIntegral i / fromIntegral k))
@@ -55,7 +54,7 @@ main = do
         mapM_ (\chunks -> do
             let chunkSize = max 1 (numPoints `div` chunks)
             (parResult, parTime) <- timeIt (return $ parallelKMeans chunkSize 100 0.001 initCentroids points)
-            let (parCentroids, parIters) = parResult
+            let (_parCentroids, parIters) = parResult
             let speedup = realToFrac seqTime / realToFrac parTime :: Double
             printResult ("Parallel (" ++ show chunks ++ " chunks)") parTime
             putStrLn $ "    Speedup: " ++ show (roundTo 2 speedup) ++ "x"

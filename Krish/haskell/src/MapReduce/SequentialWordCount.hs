@@ -63,7 +63,7 @@ module MapReduce.SequentialWordCount
 
 import qualified Data.Map.Strict as Map
 import Data.Char (toLower, isAlpha)
-import Control.DeepSeq (NFData(..))
+
 import Data.List (sortBy)
 import Data.Ord (Down(..))
 

@@ -34,10 +34,8 @@ import MapReduce.ParallelWordCount (parallelWordCount)
 import MonteCarlo.SequentialPi (estimatePi)
 import MonteCarlo.ParallelPi (parallelPiAsync, parallelPiSTM)
 
-import Control.DeepSeq (force, NFData)
+import Control.DeepSeq (force)
 import Control.Exception (evaluate)
-import Data.Time.Clock (NominalDiffTime)
-import System.IO (hFlush, stdout)
 
 main :: IO ()
 main = do
@@ -82,12 +80,12 @@ benchMergeSort = do
         printResult "Sequential Merge Sort" seqTime
         
         -- Parallel with different depth thresholds
-        (parResult2, parTime2) <- timeIt (return $ parallelMergeSortWithDepth 2 xs)
+        (_parResult2, parTime2) <- timeIt (return $ parallelMergeSortWithDepth 2 xs)
         let speedup2 = realToFrac seqTime / realToFrac parTime2 :: Double
         printResult ("Parallel (depth=2, 4 tasks)") parTime2
         putStrLn $ "    Speedup: " ++ show (roundTo 2 speedup2) ++ "x"
         
-        (parResult3, parTime3) <- timeIt (return $ parallelMergeSortWithDepth 3 xs)
+        (_parResult3, parTime3) <- timeIt (return $ parallelMergeSortWithDepth 3 xs)
         let speedup3 = realToFrac seqTime / realToFrac parTime3 :: Double
         printResult ("Parallel (depth=3, 8 tasks)") parTime3
         putStrLn $ "    Speedup: " ++ show (roundTo 2 speedup3) ++ "x"
@@ -125,17 +123,17 @@ benchMatMul = do
         _ <- evaluate (force matB)
         
         -- Sequential
-        (seqResult, seqTime) <- timeIt (return $ matMul matA matB)
+        (_seqResult, seqTime) <- timeIt (return $ matMul matA matB)
         printResult "Sequential Matrix Multiply" seqTime
         
         -- Parallel (parMap)
-        (parResult, parTime) <- timeIt (return $ parallelMatMul matA matB)
+        (_parResult, parTime) <- timeIt (return $ parallelMatMul matA matB)
         let speedup = realToFrac seqTime / realToFrac parTime :: Double
         printResult "Parallel (parMap over rows)" parTime
         putStrLn $ "    Speedup: " ++ show (roundTo 2 speedup) ++ "x"
         
         -- Parallel (chunked, 4 chunks)
-        (chunkResult, chunkTime) <- timeIt (return $ parallelMatMulChunked 4 matA matB)
+        (_chunkResult, chunkTime) <- timeIt (return $ parallelMatMulChunked 4 matA matB)
         let speedupC = realToFrac seqTime / realToFrac chunkTime :: Double
         printResult "Parallel (chunked, 4 chunks)" chunkTime
         putStrLn $ "    Speedup: " ++ show (roundTo 2 speedupC) ++ "x"
@@ -170,9 +168,9 @@ benchWordCount = do
             , "word" ++ show i  -- unique words to make frequency distribution interesting
             ]) [1..5000 :: Int]
     
-    let textSizes = [(1, sampleText), (3, concat $ replicate 3 sampleText)]
+    let textSizes = [(1 :: Int, sampleText), (3, concat $ replicate 3 sampleText)]
     
-    mapM_ (\(mult, text) -> do
+    mapM_ (\(_mult, text) -> do
         let wordCount' = length (words text)
         putStrLn $ "  --- Text size: ~" ++ show wordCount' ++ " words ---"
         
@@ -245,4 +243,4 @@ benchMonteCarlo = do
 -- ============================================================================
 
 roundTo :: Int -> Double -> Double
-roundTo n x = fromIntegral (round (x * 10^n) :: Int) / 10^(fromIntegral n)
+roundTo n x = fromIntegral (round (x * 10^n) :: Int) / fromIntegral (10^n :: Int)

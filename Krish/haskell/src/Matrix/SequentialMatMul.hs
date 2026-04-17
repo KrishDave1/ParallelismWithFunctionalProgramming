@@ -54,7 +54,7 @@ module Matrix.SequentialMatMul
     , matEqual
     ) where
 
-import Control.DeepSeq (NFData(..))
+
 
 {-|
   Sequential matrix multiplication: C = A × B

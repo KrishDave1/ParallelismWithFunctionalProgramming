@@ -92,7 +92,7 @@ module Sorting.ParallelMergeSort
     ) where
 
 import Sorting.SequentialMergeSort (merge, mergeSort)
-import Control.Parallel.Strategies (rpar, rseq, rdeepseq, using, Strategy, runEval)
+import Control.Parallel.Strategies (rpar, rseq, runEval)
 import Control.DeepSeq (NFData, force)
 
 {-|

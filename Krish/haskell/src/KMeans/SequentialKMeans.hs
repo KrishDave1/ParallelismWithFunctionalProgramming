@@ -68,9 +68,8 @@ module KMeans.SequentialKMeans
     , hasConverged
     ) where
 
-import Data.List (minimumBy, groupBy, sortBy, foldl')
+import Data.List (minimumBy, foldl')
 import Data.Ord (comparing)
-import Control.DeepSeq (NFData(..))
 
 -- ============================================================================
 -- Data Types
@@ -172,7 +171,7 @@ assignPoint centroids point =
   Pure function — no side effects.
 -}
 distance :: Point -> Point -> Double
-distance (x1, y1) (x2, y2) = sqrt ((x1 - x2)^2 + (y1 - y2)^2)
+distance (x1, y1) (x2, y2) = sqrt ((x1 - x2)^(2::Int) + (y1 - y2)^(2::Int))
 
 -- ============================================================================
 -- Update Step

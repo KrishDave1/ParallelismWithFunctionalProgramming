@@ -31,11 +31,15 @@ common shared-settings
     ghc-options:
         -Wall
         -O2
+    build-depends:
+        base >= 4.14 && < 5
+
+common exe-settings
+    import:           shared-settings
+    ghc-options:
         -threaded
         -rtsopts
         "-with-rtsopts=-N"
-    build-depends:
-        base >= 4.14 && < 5
 
 -- ============================================================================
 -- Library: Core implementations of all parallel algorithms
@@ -83,7 +87,7 @@ library
 -- Executable: Main benchmark runner
 -- ============================================================================
 executable haskell-parallelism
-    import:           shared-settings
+    import:           exe-settings
     main-is:          Main.hs
     hs-source-dirs:   app
     build-depends:
@@ -95,7 +99,7 @@ executable haskell-parallelism
 -- Individual benchmark executables (for focused testing)
 -- ============================================================================
 executable bench-mergesort
-    import:           shared-settings
+    import:           exe-settings
     main-is:          BenchMergeSort.hs
     hs-source-dirs:   app
     build-depends:
@@ -103,7 +107,7 @@ executable bench-mergesort
         deepseq >= 1.4
 
 executable bench-matmul
-    import:           shared-settings
+    import:           exe-settings
     main-is:          BenchMatMul.hs
     hs-source-dirs:   app
     build-depends:
@@ -111,7 +115,7 @@ executable bench-matmul
         deepseq >= 1.4
 
 executable bench-wordcount
-    import:           shared-settings
+    import:           exe-settings
     main-is:          BenchWordCount.hs
     hs-source-dirs:   app
     build-depends:
@@ -119,14 +123,14 @@ executable bench-wordcount
         deepseq >= 1.4
 
 executable bench-montecarlo
-    import:           shared-settings
+    import:           exe-settings
     main-is:          BenchMonteCarlo.hs
     hs-source-dirs:   app
     build-depends:
         haskell-parallelism
 
 executable bench-kmeans
-    import:           shared-settings
+    import:           exe-settings
     main-is:          BenchKMeans.hs
     hs-source-dirs:   app
     build-depends:
@@ -135,7 +139,7 @@ executable bench-kmeans
         random >= 1.2
 
 executable bench-integration
-    import:           shared-settings
+    import:           exe-settings
     main-is:          BenchIntegration.hs
     hs-source-dirs:   app
     build-depends:

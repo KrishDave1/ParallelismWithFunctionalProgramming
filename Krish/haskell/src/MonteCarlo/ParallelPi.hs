@@ -117,7 +117,7 @@ import MonteCarlo.SequentialPi (countHits)
 import System.Random.SplitMix (SMGen, mkSMGen, splitSMGen)
 import Control.Concurrent.Async (mapConcurrently)
 import Control.Concurrent.STM
-    ( TVar, newTVarIO, readTVarIO, atomically, modifyTVar' )
+    ( newTVarIO, readTVarIO, atomically, modifyTVar' )
 import Control.Concurrent (forkIO)
 import Control.Monad (forM_)
 import Control.Concurrent.MVar (newEmptyMVar, putMVar, takeMVar)

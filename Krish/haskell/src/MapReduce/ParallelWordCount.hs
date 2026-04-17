@@ -91,8 +91,7 @@ module MapReduce.ParallelWordCount
 
 import MapReduce.SequentialWordCount (tokenize, WordFreq)
 import qualified Data.Map.Strict as Map
-import Control.Monad.Par (runPar, parMapM, Par, get, put, new, fork)
-import Control.DeepSeq (NFData, force)
+import Control.Monad.Par (runPar, parMapM)
 
 {-|
   Parallel word count using the Par monad.

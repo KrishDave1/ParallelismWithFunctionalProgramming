@@ -2,7 +2,7 @@
 module Main where
 
 import Bench.Utils
-import MapReduce.SequentialWordCount (wordCount, topN)
+import MapReduce.SequentialWordCount (wordCount)
 import MapReduce.ParallelWordCount (parallelWordCount)
 import Control.DeepSeq (force)
 import Control.Exception (evaluate)

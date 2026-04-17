@@ -220,4 +220,4 @@ formatTime t
   where
     seconds = realToFrac t :: Double
     roundTo :: Int -> Double -> Double
-    roundTo n x = fromIntegral (round (x * 10^n) :: Int) / 10^(fromIntegral n)
+    roundTo n x = fromIntegral (round (x * 10^n) :: Int) / fromIntegral (10^n :: Int)

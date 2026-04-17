@@ -70,7 +70,7 @@ module MonteCarlo.SequentialPi
     ) where
 
 import System.Random.SplitMix (SMGen, mkSMGen, nextDouble)
-import Control.DeepSeq (NFData(..))
+
 import Data.Word (Word64)
 
 {-|
