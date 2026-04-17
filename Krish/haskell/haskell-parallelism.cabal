@@ -93,7 +93,8 @@ executable haskell-parallelism
     build-depends:
         haskell-parallelism,
         deepseq >= 1.4,
-        time >= 1.9
+        time >= 1.9,
+        random >= 1.2
 
 -- ============================================================================
 -- Individual benchmark executables (for focused testing)
