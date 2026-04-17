@@ -88,7 +88,7 @@ SPARKS: 585 (478 converted, 0 overflowed, 0 dud, 45 GC'd, 62 fizzled)
 
 | Metric | Value | Meaning |
 |--------|-------|---------|
-| Converted | 478 (81.7%) | Successfully executed on another core ✓ |
+| Converted | 478 (81.7%) | Successfully executed on another core |
 | Fizzled | 62 (10.6%) | Main thread evaluated before worker picked it up |
 | GC'd | 45 (7.7%) | Garbage collected before evaluation |
 | Dud | 0 (0%) | None were already evaluated |

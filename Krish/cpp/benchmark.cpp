@@ -406,7 +406,7 @@ string generateText(int numWords) {
 
 void printResult(const string& label, double timeMs) {
     cout << "  " << left << setw(40) << label;
-    if (timeMs < 1.0) cout << fixed << setprecision(0) << timeMs * 1000 << " μs" << endl;
+    if (timeMs < 1.0) cout << fixed << setprecision(0) << timeMs * 1000 << "us" << endl;
     else if (timeMs < 1000.0) cout << fixed << setprecision(2) << timeMs << " ms" << endl;
     else cout << fixed << setprecision(3) << timeMs / 1000.0 << " s" << endl;
 }
@@ -451,7 +451,7 @@ int main() {
                 
                 // Verify correctness
                 bool correct = (arr == arr2);
-                cout << "    Correctness: " << (correct ? "✓ PASS" : "✗ FAIL") << endl;
+                cout << "    Correctness: " << (correct ? "PASS" : "FAIL") << endl;
             }
         }
         cout << endl;

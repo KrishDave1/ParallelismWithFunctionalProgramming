@@ -214,7 +214,7 @@ printResult label elapsed =
 -}
 formatTime :: NominalDiffTime -> String
 formatTime t
-    | seconds < 0.001 = show (seconds * 1000000) ++ " μs"
+    | seconds < 0.001 = show (seconds * 1000000) ++ "us"
     | seconds < 1.0   = show (roundTo 2 (seconds * 1000)) ++ " ms"
     | otherwise       = show (roundTo 3 seconds) ++ " s"
   where

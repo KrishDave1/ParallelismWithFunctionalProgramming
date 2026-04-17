@@ -131,7 +131,7 @@ cabal run bench-montecarlo -- +RTS -N8 -s
 
 | Samples | Sequential | Async (4 workers) | Speedup |
 |---------|-----------|-------------------|---------|
-| 100K | 1.06 ms | 407 μs | **2.60x** |
+| 100K | 1.06 ms | 407 us | **2.60x** |
 | 1M | 10.52 ms | 3.16 ms | **3.33x** |
 | 10M | 162.51 ms | 30.29 ms | **5.37x** |
 

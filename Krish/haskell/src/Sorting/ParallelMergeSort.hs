@@ -75,7 +75,7 @@ SPARK STATISTICS (from +RTS -s):
   You'll see output like:
     SPARKS: 64 (40 converted, 0 overflowed, 0 dud, 4 GC'd, 20 fizzled)
   
-  - converted: Actually ran in parallel on another core ✓
+  - converted: Actually ran in parallel on another core
   - fizzled: The main thread evaluated it before a worker got to it
   - GC'd: Spark was garbage collected before evaluation
   - dud: Spark was already evaluated (redundant)

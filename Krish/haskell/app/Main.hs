@@ -97,7 +97,7 @@ benchMergeSort = do
         
         -- Verify correctness: parallel result should equal sequential
         let correct = seqResult == parResult4
-        putStrLn $ "    Correctness check: " ++ (if correct then "✓ PASS" else "✗ FAIL")
+        putStrLn $ "    Correctness check: " ++ (if correct then "PASS" else "FAIL")
         putStrLn ""
         ) sizes
 
@@ -191,7 +191,7 @@ benchWordCount = do
             
             -- Verify correctness
             let correct = seqResult == parResult
-            putStrLn $ "    Correctness: " ++ (if correct then "✓ PASS" else "✗ FAIL")
+            putStrLn $ "    Correctness: " ++ (if correct then "PASS" else "FAIL")
             ) [2, 4, 8]
         
         putStrLn ""

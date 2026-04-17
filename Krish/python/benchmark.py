@@ -59,7 +59,7 @@ def print_header(title):
 
 def print_result(label, time_ms):
     if time_ms < 1.0:
-        print(f"  {label:<40}{time_ms*1000:.0f} μs")
+        print(f"  {label:<40}{time_ms*1000:.0f} us")
     elif time_ms < 1000:
         print(f"  {label:<40}{time_ms:.2f} ms")
     else:
@@ -522,7 +522,7 @@ def main():
             print_result(f"Parallel ({workers} workers)", par_time)
             print(f"    Speedup: {speedup:.2f}x")
             correct = seq_result == par_result
-            print(f"    Correctness: {'✓ PASS' if correct else '✗ FAIL'}")
+            print(f"    Correctness: {'PASS' if correct else 'FAIL'}")
         print()
     
     # ===== PROBLEM 2: Matrix Multiplication =====
