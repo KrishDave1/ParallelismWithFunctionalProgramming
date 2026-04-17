@@ -539,6 +539,196 @@ int main() {
         cout << endl;
     }
     
+    // ===== PROBLEM 5: K-Means Clustering (Machine Learning) =====
+    cout << "======================================================================" << endl;
+    cout << "  BENCHMARK 5: K-Means Clustering (std::async)" << endl;
+    cout << "======================================================================\n" << endl;
+    
+    {
+        struct Point { double x, y; };
+        
+        auto generateClusteredData = [](int k, int totalPoints, int seed) -> vector<Point> {
+            vector<Point> points;
+            int perCluster = totalPoints / k;
+            for (int c = 0; c < k; c++) {
+                double cx = 100.0 * cos(2.0 * M_PI * c / k);
+                double cy = 100.0 * sin(2.0 * M_PI * c / k);
+                mt19937 gen(seed + c);
+                uniform_real_distribution<double> dist(-20.0, 20.0);
+                for (int i = 0; i < perCluster; i++) {
+                    points.push_back({cx + dist(gen), cy + dist(gen)});
+                }
+            }
+            return points;
+        };
+        
+        auto dist = [](const Point& a, const Point& b) {
+            return sqrt((a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y));
+        };
+        
+        auto assignPoint = [&dist](const vector<Point>& centroids, const Point& p) -> int {
+            int best = 0;
+            double bestDist = dist(p, centroids[0]);
+            for (int i = 1; i < (int)centroids.size(); i++) {
+                double d = dist(p, centroids[i]);
+                if (d < bestDist) { bestDist = d; best = i; }
+            }
+            return best;
+        };
+        
+        // Sequential K-Means
+        auto seqKMeans = [&](const vector<Point>& points, vector<Point> centroids, int k, int maxIter) {
+            for (int iter = 0; iter < maxIter; iter++) {
+                // Assign
+                vector<vector<Point>> clusters(k);
+                for (const auto& p : points) {
+                    int idx = assignPoint(centroids, p);
+                    clusters[idx].push_back(p);  // MUTATION: accumulate in mutable vector
+                }
+                // Update
+                vector<Point> newCentroids(k);
+                bool converged = true;
+                for (int i = 0; i < k; i++) {
+                    if (clusters[i].empty()) { newCentroids[i] = centroids[i]; continue; }
+                    double sx = 0, sy = 0;
+                    for (const auto& p : clusters[i]) { sx += p.x; sy += p.y; }
+                    newCentroids[i] = {sx / clusters[i].size(), sy / clusters[i].size()};
+                    if (dist(centroids[i], newCentroids[i]) > 0.001) converged = false;
+                }
+                centroids = newCentroids;
+                if (converged) break;
+            }
+            return centroids;
+        };
+        
+        // Parallel K-Means
+        auto parKMeans = [&](const vector<Point>& points, vector<Point> centroids, int k, int maxIter, int numThreads) {
+            for (int iter = 0; iter < maxIter; iter++) {
+                // Parallel assign
+                int n = points.size();
+                vector<int> assignments(n);
+                vector<thread> threads;
+                int chunkSize = (n + numThreads - 1) / numThreads;
+                
+                for (int t = 0; t < numThreads; t++) {
+                    int start = t * chunkSize;
+                    int end = min(start + chunkSize, n);
+                    threads.emplace_back([&, start, end]() {
+                        for (int i = start; i < end; i++)
+                            assignments[i] = assignPoint(centroids, points[i]);
+                    });
+                }
+                for (auto& t : threads) t.join();
+                
+                // Update centroids
+                vector<double> sumX(k, 0), sumY(k, 0);
+                vector<int> count(k, 0);
+                for (int i = 0; i < n; i++) {
+                    int idx = assignments[i];
+                    sumX[idx] += points[i].x;
+                    sumY[idx] += points[i].y;
+                    count[idx]++;
+                }
+                
+                bool converged = true;
+                for (int i = 0; i < k; i++) {
+                    if (count[i] == 0) continue;
+                    Point newC = {sumX[i] / count[i], sumY[i] / count[i]};
+                    if (dist(centroids[i], newC) > 0.001) converged = false;
+                    centroids[i] = newC;
+                }
+                if (converged) break;
+            }
+            return centroids;
+        };
+        
+        int k = 5;
+        for (int numPoints : {10000, 50000, 100000, 200000}) {
+            cout << "  --- " << numPoints << " points, K=" << k << " ---" << endl;
+            auto points = generateClusteredData(k, numPoints, 42);
+            vector<Point> initCentroids(points.begin(), points.begin() + k);
+            
+            double seqTime = timeIt([&]() { seqKMeans(points, initCentroids, k, 100); });
+            printResult("Sequential K-Means", seqTime);
+            
+            for (int threads : {2, 4, 8}) {
+                double pt = timeIt([&]() { parKMeans(points, initCentroids, k, 100, threads); });
+                string label = "Parallel (" + to_string(threads) + " threads)";
+                printResult(label, pt);
+                cout << "    Speedup: " << fixed << setprecision(2) << seqTime / pt << "x" << endl;
+            }
+            cout << endl;
+        }
+    }
+    
+    // ===== PROBLEM 6: Numerical Integration (Numerical Simulation) =====
+    cout << "======================================================================" << endl;
+    cout << "  BENCHMARK 6: Numerical Integration — Trapezoidal Rule" << endl;
+    cout << "======================================================================\n" << endl;
+    
+    {
+        // Sequential trapezoidal integration
+        auto seqIntegrate = [](function<double(double)> f, double a, double b, int n) -> double {
+            double h = (b - a) / n;
+            double sum = 0.5 * (f(a) + f(b));
+            for (int i = 1; i < n; i++)
+                sum += f(a + h * i);
+            return h * sum;
+        };
+        
+        // Parallel trapezoidal integration (domain decomposition)
+        auto parIntegrate = [&seqIntegrate](function<double(double)> f, double a, double b, int n, int numThreads) -> double {
+            int subN = n / numThreads;
+            double h = (b - a) / numThreads;
+            vector<future<double>> futures;
+            
+            for (int t = 0; t < numThreads; t++) {
+                double lo = a + h * t;
+                double hi = a + h * (t + 1);
+                futures.push_back(async(launch::async, [=, &seqIntegrate]() {
+                    return seqIntegrate(f, lo, hi, subN);
+                }));
+            }
+            
+            double total = 0;
+            for (auto& fut : futures) total += fut.get();
+            return total;
+        };
+        
+        struct TestFunc {
+            string name;
+            function<double(double)> f;
+            double a, b, exact;
+        };
+        
+        vector<TestFunc> testFuncs;
+        testFuncs.push_back(TestFunc{"sin(x) on [0,pi]", [](double x){ return sin(x); }, 0, M_PI, 2.0});
+        testFuncs.push_back(TestFunc{"4/(1+x^2) on [0,1] = pi", [](double x){ return 4.0/(1.0+x*x); }, 0, 1, M_PI});
+        testFuncs.push_back(TestFunc{"x^2 on [0,1] = 1/3", [](double x){ return x*x; }, 0, 1, 1.0/3.0});
+        
+        for (auto& tf : testFuncs) {
+            cout << "  === " << tf.name << " ===" << endl;
+            
+            for (int n : {1000000, 10000000, 50000000}) {
+                cout << "  --- N = " << n << " ---" << endl;
+                
+                double seqResult;
+                double seqTime = timeIt([&]() { seqResult = seqIntegrate(tf.f, tf.a, tf.b, n); });
+                printResult("Sequential", seqTime);
+                cout << "    Result: " << fixed << setprecision(15) << seqResult << endl;
+                
+                for (int threads : {2, 4, 8}) {
+                    double parResult;
+                    double pt = timeIt([&]() { parResult = parIntegrate(tf.f, tf.a, tf.b, n, threads); });
+                    string label = "Parallel (" + to_string(threads) + " threads)";
+                    printResult(label, pt);
+                    cout << "    Speedup: " << fixed << setprecision(2) << seqTime / pt << "x" << endl;
+                }
+                cout << endl;
+            }
+        }
+    }
+    
     cout << "\nAll C++ benchmarks complete!" << endl;
     return 0;
 }

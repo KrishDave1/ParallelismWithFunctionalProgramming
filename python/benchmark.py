@@ -342,6 +342,136 @@ def parallel_monte_carlo_pi(n, num_workers=4, seed=42):
 
 
 # ============================================================================
+# PROBLEM 5: K-Means Clustering (Machine Learning)
+# ============================================================================
+
+def _distance(p1, p2):
+    return math.sqrt((p1[0]-p2[0])**2 + (p1[1]-p2[1])**2)
+
+def _assign_point(centroids, point):
+    dists = [_distance(point, c) for c in centroids]
+    return dists.index(min(dists))
+
+def sequential_kmeans(points, init_centroids, k, max_iter, epsilon=0.001):
+    centroids = list(init_centroids)
+    for _ in range(max_iter):
+        # Assign
+        assignments = [_assign_point(centroids, p) for p in points]
+        # Update
+        new_centroids = []
+        converged = True
+        for i in range(k):
+            cluster = [points[j] for j in range(len(points)) if assignments[j] == i]
+            if not cluster:
+                new_centroids.append(centroids[i])
+                continue
+            cx = sum(p[0] for p in cluster) / len(cluster)
+            cy = sum(p[1] for p in cluster) / len(cluster)
+            new_c = (cx, cy)
+            if _distance(centroids[i], new_c) > epsilon:
+                converged = False
+            new_centroids.append(new_c)
+        centroids = new_centroids
+        if converged:
+            break
+    return centroids
+
+def _assign_chunk(args):
+    """Worker: assign a chunk of points to centroids."""
+    chunk, centroids = args
+    return [_assign_point(centroids, p) for p in chunk]
+
+def parallel_kmeans(points, init_centroids, k, max_iter, num_workers=4, epsilon=0.001):
+    centroids = list(init_centroids)
+    chunk_size = max(1, len(points) // num_workers)
+    
+    for _ in range(max_iter):
+        # Parallel assign
+        chunks = [(points[i:i+chunk_size], centroids)
+                  for i in range(0, len(points), chunk_size)]
+        
+        with Pool(num_workers) as pool:
+            results = pool.map(_assign_chunk, chunks)
+        
+        assignments = [a for chunk_result in results for a in chunk_result]
+        
+        # Update
+        new_centroids = []
+        converged = True
+        for i in range(k):
+            cluster = [points[j] for j in range(len(points)) if assignments[j] == i]
+            if not cluster:
+                new_centroids.append(centroids[i])
+                continue
+            cx = sum(p[0] for p in cluster) / len(cluster)
+            cy = sum(p[1] for p in cluster) / len(cluster)
+            new_c = (cx, cy)
+            if _distance(centroids[i], new_c) > epsilon:
+                converged = False
+            new_centroids.append(new_c)
+        centroids = new_centroids
+        if converged:
+            break
+    return centroids
+
+def generate_clustered_data(k, total_points, seed=42):
+    points = []
+    per_cluster = total_points // k
+    for c in range(k):
+        cx = 100.0 * math.cos(2 * math.pi * c / k)
+        cy = 100.0 * math.sin(2 * math.pi * c / k)
+        rng = random.Random(seed + c)
+        for _ in range(per_cluster):
+            points.append((cx + rng.uniform(-20, 20), cy + rng.uniform(-20, 20)))
+    return points
+
+
+# ============================================================================
+# PROBLEM 6: Numerical Integration (Numerical Simulation)
+# ============================================================================
+
+# Define test functions at module level for pickling
+def _func_sin(x): return math.sin(x)
+def _func_leibniz_pi(x): return 4.0 / (1.0 + x * x)
+def _func_x_squared(x): return x * x
+
+_FUNC_MAP = {
+    'sin': _func_sin,
+    'leibniz': _func_leibniz_pi,
+    'x2': _func_x_squared,
+}
+
+def sequential_integrate(f, a, b, n):
+    """Trapezoidal rule integration."""
+    h = (b - a) / n
+    total = 0.5 * (f(a) + f(b))
+    for i in range(1, n):
+        total += f(a + h * i)
+    return h * total
+
+def _integrate_chunk(args):
+    """Worker: integrate f over sub-range [lo, hi]."""
+    func_name, lo, hi, sub_n = args
+    f = _FUNC_MAP[func_name]
+    h = (hi - lo) / sub_n
+    total = 0.5 * (f(lo) + f(hi))
+    for i in range(1, sub_n):
+        total += f(lo + h * i)
+    return h * total
+
+def parallel_integrate(func_name, a, b, n, num_workers=4):
+    """Parallel integration via domain decomposition."""
+    sub_n = n // num_workers
+    h = (b - a) / num_workers
+    tasks = [(func_name, a + h * t, a + h * (t + 1), sub_n) for t in range(num_workers)]
+    
+    with Pool(num_workers) as pool:
+        results = pool.map(_integrate_chunk, tasks)
+    
+    return sum(results)
+
+
+# ============================================================================
 # Data Generation
 # ============================================================================
 
@@ -448,6 +578,49 @@ def main():
             print(f"    π ≈ {par_result:.7f}")
             print(f"    Speedup: {speedup:.2f}x")
         print()
+    
+    # ===== PROBLEM 5: K-Means Clustering (Machine Learning) =====
+    print_header("BENCHMARK 5: K-Means Clustering (multiprocessing.Pool)")
+    
+    for num_points in [10000, 50000, 100000]:
+        print(f"  --- {num_points} points, K=5 ---")
+        points = generate_clustered_data(5, num_points)
+        init_centroids = points[:5]
+        
+        seq_result, seq_time = time_it(sequential_kmeans, points, init_centroids, 5, 100)
+        print_result("Sequential K-Means", seq_time)
+        
+        for workers in [2, 4]:
+            par_result, par_time = time_it(parallel_kmeans, points, init_centroids, 5, 100, workers)
+            speedup = seq_time / par_time if par_time > 0 else 0
+            print_result(f"Parallel ({workers} workers)", par_time)
+            print(f"    Speedup: {speedup:.2f}x")
+        print()
+    
+    # ===== PROBLEM 6: Numerical Integration (Numerical Simulation) =====
+    print_header("BENCHMARK 6: Numerical Integration — Trapezoidal Rule")
+    
+    test_funcs = [
+        ("sin(x) on [0,π]", _func_sin, 'sin', 0, math.pi, 2.0),
+        ("4/(1+x²) on [0,1] = π", _func_leibniz_pi, 'leibniz', 0, 1, math.pi),
+        ("x² on [0,1] = 1/3", _func_x_squared, 'x2', 0, 1, 1.0/3.0),
+    ]
+    
+    for name, f, func_name, a, b, exact in test_funcs:
+        print(f"  === {name} ===")
+        for n in [1000000, 10000000]:
+            print(f"  --- N = {n} ---")
+            
+            seq_result, seq_time = time_it(sequential_integrate, f, a, b, n)
+            print_result("Sequential", seq_time)
+            print(f"    Result: {seq_result:.15f}")
+            
+            for workers in [2, 4, 8]:
+                par_result, par_time = time_it(parallel_integrate, func_name, a, b, n, workers)
+                speedup = seq_time / par_time if par_time > 0 else 0
+                print_result(f"Parallel ({workers} workers)", par_time)
+                print(f"    Speedup: {speedup:.2f}x")
+            print()
     
     print("\nAll Python benchmarks complete!")
 
