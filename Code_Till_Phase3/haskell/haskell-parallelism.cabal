@@ -1,0 +1,94 @@
+cabal-version:      3.0
+name:               haskell-parallelism
+version:            0.1.0.0
+synopsis:           Exploring parallelism through functional programming constructs in Haskell
+description:
+    This project demonstrates how functional programming concepts — purity,
+    higher-order functions, lazy evaluation, persistent data structures,
+    and explicit parallelism constructs — can be leveraged to build parallel
+    algorithms that are safe, composable, and performant.
+    .
+    Two computational problems are implemented:
+    .
+    1. Parallel Merge Sort (Eval monad + Strategies)
+    2. Parallel Matrix Multiplication (Data Parallelism)
+    .
+    Each problem is benchmarked against equivalent C++ and Python implementations.
+
+license:            MIT
+author:             Krish Dave
+build-type:         Simple
+
+-- ============================================================================
+-- Common settings shared across all build targets
+-- ============================================================================
+common shared-settings
+    default-language: Haskell2010
+    ghc-options:
+        -Wall
+        -O2
+    build-depends:
+        base >= 4.14 && < 5
+
+common exe-settings
+    import:           shared-settings
+    ghc-options:
+        -threaded
+        -rtsopts
+        "-with-rtsopts=-N"
+
+-- ============================================================================
+-- Library: Core implementations of all parallel algorithms
+-- ============================================================================
+library
+    import:           shared-settings
+    hs-source-dirs:   src
+    exposed-modules:
+        -- Problem 1: Parallel Merge Sort
+        Sorting.SequentialMergeSort
+        Sorting.ParallelMergeSort
+        -- Problem 2: Parallel Matrix Multiplication
+        Matrix.SequentialMatMul
+        Matrix.ParallelMatMul
+
+        -- Benchmarking utilities
+        Bench.Utils
+    build-depends:
+        parallel >= 3.2,
+        deepseq >= 1.4,
+        random >= 1.2,
+        time >= 1.9
+
+-- ============================================================================
+-- Executable: Main benchmark runner
+-- ============================================================================
+executable haskell-parallelism
+    import:           exe-settings
+    main-is:          Main.hs
+    hs-source-dirs:   app
+    build-depends:
+        haskell-parallelism,
+        deepseq >= 1.4,
+        time >= 1.9,
+        random >= 1.2
+
+-- ============================================================================
+-- Individual benchmark executables (for focused testing)
+-- ============================================================================
+executable bench-mergesort
+    import:           exe-settings
+    main-is:          BenchMergeSort.hs
+    hs-source-dirs:   app
+    build-depends:
+        haskell-parallelism,
+        deepseq >= 1.4
+
+executable bench-matmul
+    import:           exe-settings
+    main-is:          BenchMatMul.hs
+    hs-source-dirs:   app
+    build-depends:
+        haskell-parallelism,
+        deepseq >= 1.4
+
+
