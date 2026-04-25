@@ -36,7 +36,21 @@
 - [x] Benchmark across sample sizes (100K, 1M, 10M)
 - [x] Document results
 
-## Phase 6: Analysis & Presentation
+## Phase 6: Problem 5 — K-Means Clustering
+- [x] Haskell: Sequential + parallel (Strategies, parListChunk)
+- [x] C++: Sequential + parallel (std::async)
+- [x] Python: Sequential + parallel (multiprocessing)
+- [x] Benchmark across point counts (10K, 50K, 100K)
+- [x] Document results
+
+## Phase 7: Problem 6 — Numerical Integration
+- [x] Haskell: Sequential + parallel (Domain decomposition)
+- [x] C++: Sequential + parallel (std::async)
+- [x] Python: Sequential + parallel (multiprocessing)
+- [x] Benchmark across intervals (1M, 10M, 50M)
+- [x] Document results
+
+## Phase 8: Analysis & Presentation
 - [ ] Generate all benchmark charts (matplotlib/seaborn)
 - [ ] Code complexity comparison (LOC, sync primitives)
 - [ ] Write comprehensive project report
