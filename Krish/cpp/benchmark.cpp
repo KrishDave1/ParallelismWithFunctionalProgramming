@@ -42,7 +42,6 @@ RUN:
 #include <iomanip>
 #include <atomic>
 #include <cctype>
-#include <windows.h>
 
 using namespace std;
 using namespace chrono;
@@ -274,7 +273,7 @@ map<string, int> parallelWordCount(const string& text, int numThreads) {
     map<string, int> result;
     for (auto& f : futures) {
         auto local = f.get();
-        for (auto& [word, count] : local) {
+        for (auto& [word, count] : local) { 
             result[word] += count;
         }
     }
@@ -417,7 +416,6 @@ void printResult(const string& label, double timeMs) {
 // ============================================================================
 
 int main() {
-    SetConsoleOutputCP(CP_UTF8);
     cout << endl;
     cout << "╔══════════════════════════════════════════════════════════════════╗" << endl;
     cout << "║   C++ Imperative Comparison Benchmarks                         ║" << endl;
@@ -711,7 +709,7 @@ int main() {
         for (auto& tf : testFuncs) {
             cout << "  === " << tf.name << " ===" << endl;
             
-            for (int n : {1000000, 10000000, 50000000}) {
+            for (int n : {1000000, 10000000}) {
                 cout << "  --- N = " << n << " ---" << endl;
                 
                 double seqResult;

@@ -546,7 +546,7 @@ def main():
     # ===== PROBLEM 3: Word Count =====
     print_header("BENCHMARK 3: Word Count (multiprocessing.Pool)")
     
-    for num_words in [50000, 150000]:
+    for num_words in [155000, 465000]:
         print(f"  --- Text size: ~{num_words} words ---")
         text = generate_text(num_words)
         
