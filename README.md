@@ -1,7 +1,7 @@
 # Harnessing Functional Programming for Parallelism
 
 > **Course:** Programming Languages (8th Semester)  
-> **Author:** Krish Dave  
+> **Author:** Krish Dave,   Aaditya Joshi    
 > **Language:** Haskell (GHC 9.6.7) — compared with C++ and Python
 
 ---
