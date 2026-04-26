@@ -42,6 +42,7 @@ RUN:
 #include <iomanip>
 #include <atomic>
 #include <cctype>
+#include <windows.h>
 
 using namespace std;
 using namespace chrono;
@@ -416,6 +417,7 @@ void printResult(const string& label, double timeMs) {
 // ============================================================================
 
 int main() {
+    SetConsoleOutputCP(CP_UTF8);
     cout << endl;
     cout << "╔══════════════════════════════════════════════════════════════════╗" << endl;
     cout << "║   C++ Imperative Comparison Benchmarks                         ║" << endl;
